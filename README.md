@@ -35,10 +35,17 @@ A Rust-based server to filter bad words and phrases using a Trie data structure.
 
 3. Create a `.env` file in the root directory with your MongoDB URI and database name:
     ```env
-    MONGO_URI=mongodb://username:password@localhost:27017
+    MONGO_URI=mongodb://username:password@localhost:27017/your_database_name?authSource=admin
     MONGO_DBNAME=your_database_name
     BEARER_TOKEN=optional_auth_token
     ```
+### Database
+Using MongoDB simply create a collection called `badwords` and within that collection, each document
+should have a `word` field, for example:
+```json
+[{"word":"badword"},{"word":"bad phrase"}]
+```
+The documents can have any other metadata that's required, only the `word` field is required.
 
 ## Usage
 
