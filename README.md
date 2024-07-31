@@ -200,5 +200,5 @@ This project is licensed under the MIT License.  See the [LICENSE](LICENSE) file
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
 ### Contact
-For questions or support, pleae contact: [Derrick Woolworth](dwoolworth@gmail.com)
+For questions or support, pleae contact: [Derrick Woolworth](https://github.com/dwoolworth)
 
