@@ -5,7 +5,24 @@
 
 A Rust-based server to filter bad words and phrases using a Trie data structure. It supports single and multi-word phrases and can run as a daemon.  The question is "why" build this?
 If you have a heavily trafficked site and people are posting constantly, the web server has enough to do besides loading up a bunch of words and phrases and attempting to search for them.
-A microservice is an obvious answer.  Any high performance language would do, but why not something capable of handling a LOT of requests?
+A microservice is an obvious answer.  Any high performance language would do, but why not something capable of handling a LOT of requests?  So I kept this simple and my results are as
+follows, around 12,000 requests a second, or each request is around 800 microseconds.
+
+``` bash
+Concurrency Level:      10
+Time taken for tests:   0.838 seconds
+Complete requests:      10000
+Failed requests:        0
+Total transferred:      1220000 bytes
+Total body sent:        2620000
+HTML transferred:       60000 bytes
+Requests per second:    11933.60 [#/sec] (mean)
+Time per request:       0.838 [ms] (mean)
+Time per request:       0.084 [ms] (mean, across all concurrent requests)
+Transfer rate:          1421.78 [Kbytes/sec] received
+                        3053.32 kb/s sent
+                        4475.10 kb/s total
+```
 
 ## Table of Contents
 
