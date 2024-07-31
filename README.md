@@ -3,7 +3,7 @@
 Bad Word Server pulls words from a MongoDB connection the schema for these documents should be anything like:
 
 ``` json
-{ word: 'badword' }
+{"word":"badword"}
 ```
 
 All words are loaded into memory into a trie structure for fast searching.  Two endpoints are exposed:
