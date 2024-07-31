@@ -19,3 +19,6 @@ rust-stemmers = "1.2"
 dotenv = "0.15"
 futures = "0.3"
 futures-util = "0.3"
+clap = { version = "4.0", features = ["derive"] }
+daemonize = "0.5"
+sysinfo = "0.23.7"
