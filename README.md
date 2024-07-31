@@ -3,7 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Server](https://github.com/devious-dudes/bad_word_filter_server/actions/workflows/rust.yml/badge.svg)](https://github.com/devious-dudes/bad_word_filter_server/actions/workflows/rust.yml)
 
-A Rust-based server to filter bad words and phrases using a Trie data structure. It supports single and multi-word phrases and can run as a daemon. 
+A Rust-based server to filter bad words and phrases using a Trie data structure. It supports single and multi-word phrases and can run as a daemon.  The question is "why" build this?
+If you have a heavily trafficked site and people are posting constantly, the web server has enough to do besides loading up a bunch of words and phrases and attempting to search for them.
+A microservice is an obvious answer.  Any high performance language would do, but why not something capable of handling a LOT of requests?
 
 ## Table of Contents
 
