@@ -1,5 +1,8 @@
 # Bad Word Filter Server
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Server](https://github.com/devious-dudes/bad_word_filter_server/actions/workflows/rust.yml/badge.svg)](https://github.com/devious-dudes/bad_word_filter_server/actions/workflows/rust.yml)
+
 A Rust-based server to filter bad words and phrases using a Trie data structure. It supports single and multi-word phrases and can run as a daemon. 
 
 ## Table of Contents
