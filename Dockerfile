@@ -31,7 +31,9 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder /bad_word_svr/target/release/bad_word_svr /usr/local/bin/bad_word_svr
 
 # Set permissions and change to non-root user
-RUN chown -R appuser:appgroup /usr/local/bin/bad_word_svr
+RUN chown -R appuser:appgroup /usr/local/bin/bad_word_svr \
+ && chmod 0755 /usr/local/bin/bad_word_svr
+
 USER appuser
 
 # Set the startup command
