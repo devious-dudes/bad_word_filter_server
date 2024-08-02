@@ -1,4 +1,4 @@
-// src/main.rs 
+// src/main.rs
 
 use actix_web::{web, App, HttpServer, Responder, HttpResponse};
 use clap::{Parser};
@@ -34,12 +34,12 @@ struct Message {
 #[clap(author, version, about, long_about = None)]
 struct Args {
   /// Host to bind to
-  #[clap(long, default_value = "localhost")]
-  host: String,
+  #[clap(long)]
+  host: Option<String>,
 
   /// Port to bind to
-  #[clap(long, default_value_t = 8080)]
-  port: u16,
+  #[clap(long)]
+  port: Option<u16>,
 
   /// Run as a daemon
   #[clap(short, long)]
@@ -106,20 +106,33 @@ async fn main() -> std::io::Result<()> {
 
   let mongo_uri = env::var("MONGO_URI").expect("MONGO_URI must be set in .env file or as an environment variable");
   let db_name = env::var("MONGO_DBNAME").expect("MONGO_DBNAME must be set in .env file or as an environment variable");
+
   let bearer_token = env::var("BEARER_TOKEN").ok();
+  match bearer_token {
+    Some(ref token) => println!("Using bearer token |{}|", token),
+    None => println!("No bearer token found"),
+  }
 
   let client = get_mongo_client(&mongo_uri).await;
   let bad_words = load_bad_words(&client, &db_name).await;
+  println!("Connected to database and retrieved data");
+
   let mut initial_trie = Trie::new();
   for word in bad_words {
-      initial_trie.insert(&word);
+    initial_trie.insert(&word);
   }
+  println!("Trie loaded with initial set of words");
 
   let app_state = web::Data::new(AppState {
       trie: Arc::new(RwLock::new(initial_trie)),
   });
 
   let db_name_clone = db_name.clone();
+
+  // Use command-line arguments if provided, otherwise fallback to .env variables
+  let host = args.host.unwrap_or_else(|| env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()));
+  let port = args.port.unwrap_or_else(|| env::var("PORT").unwrap_or_else(|_| "8080".to_string()).parse().expect("Invalid port number"));
+
   HttpServer::new(move || {
     let db_name_clone = db_name_clone.clone();
     App::new()
@@ -132,7 +145,7 @@ async fn main() -> std::io::Result<()> {
       }))
       .route("/health", web::get().to(health))
   })
-  .bind((args.host.as_str(), args.port))?
+  .bind((host.as_str(), port))?
   .run()
   .await
 }

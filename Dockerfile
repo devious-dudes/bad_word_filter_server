@@ -1,40 +1,36 @@
-# Stage 1: Build the application
-FROM rust:latest AS builder
+# Build Stage
+FROM rust:alpine AS builder
+ENV APP_DIR=/bwfs
 
-# Create a new empty shell project
-RUN USER=root cargo new --bin bad_word_svr
-WORKDIR /bad_word_svr
+RUN USER=root cargo new --bin bwfs
+WORKDIR ${APP_DIR}
 
-# Copy the manifest file
 COPY Cargo.toml Cargo.lock ./
 
-# Build dependencies to cache them
-RUN cargo build --release
-RUN rm src/*.rs
+RUN apk add --no-cache musl-dev \
+ && rustup target add x86_64-unknown-linux-musl
 
-# Copy the source code
-COPY src ./src
+COPY src ${APP_DIR}/src
+RUN cargo build --target x86_64-unknown-linux-musl --release
 
-# Build the project
-RUN cargo build --release
-
-# Stage 2: Create the final image
+# Final Stage
 FROM alpine:latest
+ENV APP_DIR=/bwfs
 
-# Install required packages
-RUN apk --no-cache add ca-certificates
+WORKDIR ${APP_DIR}
 
-# Create a non-root user
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Copy the build artifact from the builder stage
-COPY --from=builder /bad_word_svr/target/release/bad_word_svr /usr/local/bin/bad_word_svr
-
-# Set permissions and change to non-root user
-RUN chown -R appuser:appgroup /usr/local/bin/bad_word_svr \
- && chmod 0755 /usr/local/bin/bad_word_svr
+RUN apk --no-cache add ca-certificates \
+ && addgroup -S appgroup && adduser -S appuser -G appgroup \
+ && chown -R appuser:appgroup ${APP_DIR} \
+ && chmod 0755 ${APP_DIR} \
+ && ls -alR
 
 USER appuser
 
+# Copy the build artifact from the builder stage
+COPY --from=builder ${APP_DIR}/target/x86_64-unknown-linux-musl/release/bad_word_svr ${APP_DIR}/bad_word_svr
+
+RUN rm -rf ${APP_DIR}/target
+
 # Set the startup command
-CMD ["/usr/local/bin/bad_word_svr"]
+CMD ["./bad_word_svr"]

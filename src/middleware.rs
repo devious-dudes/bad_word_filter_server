@@ -70,6 +70,17 @@ where
               let res = svc.call(req).await?;
               let res = res.map_into_left_body();
               return Ok(res);
+            } else {
+              // Extract the IP address from the request
+              let ip_address = req.peer_addr()
+                .map(|addr| addr.ip().to_string())
+                .unwrap_or_else(|| "unknown".to_string());
+
+              println!(
+                "Authorization failed: IP: {}, auth_str: |{}|",
+                ip_address,
+                expected_token
+              );
             }
           }
         }
