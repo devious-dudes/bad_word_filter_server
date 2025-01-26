@@ -22,6 +22,31 @@ spec:
           ports:
             - name: service-port
               containerPort: 8080
+          readinessProbe:
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 4
+          readinessProbe:
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 4
+          startupProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            initialDelaySeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 4
           env:
             # Credentials from ConfigMap
             - name: HOST
