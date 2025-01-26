@@ -22,40 +22,6 @@ spec:
           ports:
             - name: service-port
               containerPort: 8080
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: service-port
-              httpHeaders:
-                - name: Authorization
-                  value: "Bearer BEARER_TOKEN_VAR"
-            timeoutSeconds: 3
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            failureThreshold: 4
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: service-port
-              httpHeaders:
-                - name: Authorization
-                  value: "Bearer BEARER_TOKEN_VAR"
-            timeoutSeconds: 3
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            failureThreshold: 4
-          startupProbe:
-            httpGet:
-              path: /health
-              port: service-port
-              httpHeaders:
-                - name: Authorization
-                  value: "Bearer BEARER_TOKEN_VAR"
-            timeoutSeconds: 10
-            periodSeconds: 5
-            failureThreshold: 25
-            initialDelaySeconds: 10
-
           env:
             # Credentials from ConfigMap
             - name: HOST
