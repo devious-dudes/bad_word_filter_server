@@ -21,6 +21,31 @@ spec:
           ports:
             - name: service-port
               containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            timeoutSeconds: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 4
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            timeoutSeconds: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 4
+          startupProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            timeoutSeconds: 10
+            periodSeconds: 5
+            failureThreshold: 25
+            initialDelaySeconds: STARTUP_DELAY
+
           env:
             # Non-credentials from ConfigMap
             - name: HOST
@@ -50,27 +75,4 @@ spec:
                 secretKeyRef:
                   name: bwfs-secret
                   key: MONGO_DBNAME
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: service-port
-          timeoutSeconds: 3
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          failureThreshold: 4
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: service-port
-          timeoutSeconds: 3
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          failureThreshold: 4
-        startupProbe:
-          httpGet:
-            path: /health
-            port: service-port
-          timeoutSeconds: 10
-          periodSeconds: 5
-          failureThreshold: 25
-          initialDelaySeconds: STARTUP_DELAY
+
