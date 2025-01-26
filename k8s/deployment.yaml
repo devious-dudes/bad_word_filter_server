@@ -26,6 +26,9 @@ spec:
             httpGet:
               path: /health
               port: service-port
+              httpHeaders:
+                - name: Authorization
+                  value: "Bearer BEARER_TOKEN_VAR"
             timeoutSeconds: 3
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -34,6 +37,9 @@ spec:
             httpGet:
               path: /health
               port: service-port
+              httpHeaders:
+                - name: Authorization
+                  value: "Bearer BEARER_TOKEN_VAR"
             timeoutSeconds: 3
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -42,6 +48,9 @@ spec:
             httpGet:
               path: /health
               port: service-port
+              httpHeaders:
+                - name: Authorization
+                  value: "Bearer BEARER_TOKEN_VAR"
             timeoutSeconds: 10
             periodSeconds: 5
             failureThreshold: 25

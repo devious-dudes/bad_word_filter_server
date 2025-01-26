@@ -80,6 +80,7 @@ jobs:
         # Deployment image tag placeholder
         IMAGE_TAG="${{ github.sha }}"
         sed -i "s~IMAGE_TAG_VAR~$IMAGE_TAG~g" k8s/deployment.yaml
+        sed -i "s~BEARER_TOKEN_VAR~${{ secrets.BEARER_TOKEN }}~g" k8s/deployment.yaml
 
     # 9) Apply the changes to the cluster
     - name: Deploy to DOKS
