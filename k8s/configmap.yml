@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bwfs-config
+data:
+  HOST: "HOST_VAR"
+  PORT: "PORT_VAR"
