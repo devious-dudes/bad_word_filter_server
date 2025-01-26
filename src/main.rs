@@ -138,6 +138,8 @@ async fn main() -> std::io::Result<()> {
     App::new()
       .app_data(app_state.clone())
       .app_data(web::Data::new(client.clone()))
+      // Routes without authentication
+      .route("/health", web::get().to(health))
       // Routes requiring authentication
       .service(
         web::scope("")
@@ -147,8 +149,6 @@ async fn main() -> std::io::Result<()> {
             reload_trie(data, client, db_name_clone.clone())
           }))
       )
-      // Routes without authentication
-      .route("/health", web::get().to(health))
   })
   .bind((host.as_str(), port))?
   .run()
