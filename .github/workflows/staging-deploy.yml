@@ -69,11 +69,11 @@ jobs:
     - name: Prepare K8s manifests
       run: |
         # ConfigMap placeholders
-        sed -i "s~HOST_VAR~${{ secrets.HOST }}~g" k8s/configmap.yaml
-        sed -i "s~PORT_VAR~${{ secrets.PORT }}~g" k8s/configmap.yaml
+        sed -i "s~HOST_VAR~${{ vars.HOST }}~g" k8s/configmap.yaml
+        sed -i "s~PORT_VAR~${{ vars.PORT }}~g" k8s/configmap.yaml
 
         # Secret placeholders
-        sed -i "s~MONGO_URI_VAR~${{ vars.MONGO_URI }}~g" k8s/secret.yaml
+        sed -i "s~MONGO_URI_VAR~${{ secrets.MONGO_URI }}~g" k8s/secret.yaml
         sed -i "s~MONGO_DBNAME_VAR~${{ secrets.MONGO_DBNAME }}~g" k8s/secret.yaml
         sed -i "s~BEARER_TOKEN_VAR~${{ secrets.BEARER_TOKEN }}~g" k8s/secret.yaml
 
