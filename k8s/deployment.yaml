@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -12,7 +13,7 @@ spec:
       labels:
         app: bwfs
     spec:
-      # This references the 'quay-credentials' secret that we'll create in the workflow
+      # This references the quay-credentials secret
       imagePullSecrets:
         - name: quay-credentials
       containers:
