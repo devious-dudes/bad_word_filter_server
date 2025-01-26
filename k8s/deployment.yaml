@@ -44,10 +44,10 @@ spec:
             timeoutSeconds: 10
             periodSeconds: 5
             failureThreshold: 25
-            initialDelaySeconds: STARTUP_DELAY
+            initialDelaySeconds: 10
 
           env:
-            # Non-credentials from ConfigMap
+            # Credentials from ConfigMap
             - name: HOST
               valueFrom:
                 configMapKeyRef:
@@ -75,4 +75,3 @@ spec:
                 secretKeyRef:
                   name: bwfs-secret
                   key: MONGO_DBNAME
-
