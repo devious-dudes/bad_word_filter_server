@@ -1,0 +1,91 @@
+name: Deploy to DOKS (Docker-based)
+
+on:
+  push:
+    branches: [ "staging" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # 1) Login to Quay.io
+    - name: Log in to Quay
+      uses: docker/login-action@v2
+      with:
+        registry: quay.io
+        username: ${{ secrets.QUAY_ROBOT }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+
+    # 3) Build & push Docker image
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          quay.io/dwoolworth/bwfs:staging-latest
+          quay.io/dwoolworth/bwfs:${{ github.sha }}
+
+    # 4) Set up kubectl
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    # 5) Configure Kubeconfig
+    - name: Install doctl
+      run: |
+        curl -sL https://github.com/digitalocean/doctl/releases/download/v1.120.1/doctl-1.120.1-linux-amd64.tar.gz | tar xz
+        sudo mv doctl /usr/local/bin
+
+    - name: Authenticate doctl
+      run: |
+        doctl auth init -t "${{ secrets.DOKS_TOKEN }}"
+        doctl kubernetes cluster kubeconfig save "${{ secrets.DO_CLUSTER_NAME }}"
+
+    # 6) Create namespace if it does not exist, ignore errors
+    - name: Create namespace 'tugged-stage'
+      run: |
+        kubectl create namespace tugged-stage || true
+
+    # 7) Create / Update the registry credentials secret
+    - name: Create Quay registry secret
+      run: |
+        kubectl create secret docker-registry quay-credentials \
+          --docker-server=quay.io \
+          --docker-username="${{ secrets.QUAY_ROBOT }}" \
+          --docker-password="${{ secrets.QUAY_PASSWORD }}" \
+          --namespace tugged-stage \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    # 8) Use sed to replace placeholders in the K8s manifests
+    - name: Prepare K8s manifests
+      run: |
+        # ConfigMap placeholders
+        sed -i "s~HOST_VAR~${{ vars.HOST }}~g" k8s/configmap.yaml
+        sed -i "s~PORT_VAR~${{ vars.PORT }}~g" k8s/configmap.yaml
+
+        # Secret placeholders
+        sed -i "s~MONGO_URI_VAR~${{ secrets.MONGO_URI }}~g" k8s/secret.yaml
+        sed -i "s~MONGO_DBNAME_VAR~${{ secrets.MONGO_DBNAME }}~g" k8s/secret.yaml
+        sed -i "s~BEARER_TOKEN_VAR~${{ secrets.BEARER_TOKEN }}~g" k8s/secret.yaml
+
+        # Deployment image tag placeholder
+        IMAGE_TAG="${{ github.sha }}"
+        sed -i "s~IMAGE_TAG_VAR~$IMAGE_TAG~g" k8s/deployment.yaml
+        sed -i "s~BEARER_TOKEN_VAR~${{ secrets.BEARER_TOKEN }}~g" k8s/deployment.yaml
+
+    # 9) Apply the changes to the cluster
+    - name: Deploy to DOKS
+      run: |
+        kubectl apply -f k8s/ -n tugged-stage
+
+        # Optionally, check rollout status:
+        kubectl rollout status deployment/bad-word-filter-service -n tugged-stage

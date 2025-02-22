@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-word-filter-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bwfs
+  template:
+    metadata:
+      labels:
+        app: bwfs
+    spec:
+      # This references the quay-credentials secret
+      imagePullSecrets:
+        - name: quay-credentials
+      containers:
+        - name: bwfs
+          image: "quay.io/dwoolworth/bwfs:IMAGE_TAG_VAR"
+          ports:
+            - name: service-port
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 4
+          readinessProbe:
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 4
+          startupProbe:
+            httpGet:
+              path: /health
+              port: service-port
+            initialDelaySeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 4
+          env:
+            # Credentials from ConfigMap
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: bwfs-config
+                  key: HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: bwfs-config
+                  key: PORT
+
+            # Credentials from Secret
+            - name: BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: bwfs-secret
+                  key: BEARER_TOKEN
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: bwfs-secret
+                  key: MONGO_URI
+            - name: MONGO_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: bwfs-secret
+                  key: MONGO_DBNAME

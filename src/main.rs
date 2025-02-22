@@ -136,14 +136,19 @@ async fn main() -> std::io::Result<()> {
   HttpServer::new(move || {
     let db_name_clone = db_name_clone.clone();
     App::new()
-      .wrap(AuthMiddleware::new(bearer_token.clone()))
       .app_data(app_state.clone())
       .app_data(web::Data::new(client.clone()))
-      .route("/check", web::post().to(check_content))
-      .route("/reload", web::post().to(move |data, client| {
-        reload_trie(data, client, db_name_clone.clone())
-      }))
+      // Routes without authentication
       .route("/health", web::get().to(health))
+      // Routes requiring authentication
+      .service(
+        web::scope("")
+          .wrap(AuthMiddleware::new(bearer_token.clone()))
+          .route("/check", web::post().to(check_content))
+          .route("/reload", web::post().to(move |data, client| {
+            reload_trie(data, client, db_name_clone.clone())
+          }))
+      )
   })
   .bind((host.as_str(), port))?
   .run()
