@@ -73,13 +73,24 @@ jobs:
         sed -i "s~PORT_VAR~${{ vars.PORT }}~g" k8s/configmap.yaml
 
         # Secret placeholders
-        sed -i "s~MONGO_URI_VAR~${{ secrets.MONGO_URI }}~g" k8s/secret.yaml
+        # 1. Put the secret into a shell variable
+        MONGO_URI="${{ secrets.MONGO_URI }}"
+
+        # 2. Escape all ampersands. 
+        #    This will turn every & into \& so that sed won't treat them as special.
+        ESCAPED_URI="${MONGO_URI//&/\\&}"
+
+        # 3. Use the escaped version with sed
+        sed -i "s|MONGO_URI_VAR|${ESCAPED_URI}|g" k8s/secret.yaml
+
+        # Secret placeholders
         sed -i "s~MONGO_DBNAME_VAR~${{ secrets.MONGO_DBNAME }}~g" k8s/secret.yaml
         sed -i "s~BEARER_TOKEN_VAR~${{ secrets.BEARER_TOKEN }}~g" k8s/secret.yaml
 
         # Deployment image tag placeholder
         IMAGE_TAG="${{ github.sha }}"
         sed -i "s~IMAGE_TAG_VAR~$IMAGE_TAG~g" k8s/deployment.yaml
+        sed -i "s~BEARER_TOKEN_VAR~${{ secrets.BEARER_TOKEN }}~g" k8s/deployment.yaml
 
     # 9) Apply the changes to the cluster
     - name: Deploy to DOKS
